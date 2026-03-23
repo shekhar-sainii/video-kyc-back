@@ -32,15 +32,20 @@ const sendEmail = async ({ to, subject, html }) => {
       html,
     });
   } catch (error) {
-    console.error("Error in sendEmail:", error);
-    // Fallback to original hostname if lookup fails
-    const transporter = nodemailer.createTransport(transporterConfig);
-    await transporter.sendMail({
-      from: `"No Reply" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html,
-    });
+    console.error("Error in sendEmail (primary attempt):", error);
+    try {
+      // Fallback to original hostname if lookup fails or connection fails
+      const transporter = nodemailer.createTransport(transporterConfig);
+      await transporter.sendMail({
+        from: `"No Reply" <${process.env.EMAIL_USER}>`,
+        to,
+        subject,
+        html,
+      });
+    } catch (fallbackError) {
+      console.error("Error in sendEmail (fallback attempt):", fallbackError);
+      // Suppress error to prevent API from returning 500 when email fails
+    }
   }
 };
 

@@ -31,7 +31,7 @@ class AuthController {
 
             return ApiResponse.success(
                 res,
-                "If account exists, verification email sent."
+                "If account exists, verification email sent. [v7]"
             );
         } catch (error) {
             next(error);
@@ -56,7 +56,7 @@ class AuthController {
 
             return ApiResponse.success(
                 res,
-                "Registered successfully. Please verify your email.",
+                "Registered successfully. Please verify your email. [v7]",
                 user,
                 StatusCodes.CREATED
             );
