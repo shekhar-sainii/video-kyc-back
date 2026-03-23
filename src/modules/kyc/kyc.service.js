@@ -4,7 +4,9 @@ const { extractPanNumber } = require("../../services/ocr.service");
 const sendEmail = require("../../utils/sendEmail");
 const kycStatusTemplate = require("../../templates/emails/kycStatus.template");
 const logger = require("../../utils/logger");
-const {StatusCodes} = require("http-status-codes")
+const {StatusCodes} = require("http-status-codes");
+const { uploadImage } = require("../../services/cloudinary.service");
+const fs = require("fs/promises");
 
 const maskPan = (pan) =>
   pan.replace(/^(.{4}).*(.{2})$/, "$1••••$2");
@@ -195,11 +197,28 @@ class KYCService {
       throw new Error("KYC application already exists for this PAN number");
     }
 
+    let uploadedPhotoUrl = data.uploadedPhoto;
+    if (data.uploadedPhoto && !data.uploadedPhoto.startsWith("http")) {
+      try {
+        uploadedPhotoUrl = await uploadImage(data.uploadedPhoto, "video-kyc/uploaded-photos");
+        // Safe attempt to delete local file
+        await fs.unlink(data.uploadedPhoto).catch(() => {});
+      } catch (uploadError) {
+        logger.error({
+          message: "Failed to upload photo to Cloudinary",
+          userId: data.userId,
+          path: data.uploadedPhoto,
+          error: uploadError.message,
+        });
+        // Keep local path as fallback
+      }
+    }
+
     return await kycRepository.create({
       user: data.userId,
       panNumber: data.panNumber,
       signature: data.signature,
-      uploadedPhoto: data.uploadedPhoto,
+      uploadedPhoto: uploadedPhotoUrl,
     });
   }
 
@@ -344,9 +363,29 @@ class KYCService {
         : `${mismatchReason}. Maximum verification attempts reached.`;
     }
 
+    let panCardImageUrl = verificationData.panCardImage;
+    if (verificationData.panCardImage && !verificationData.panCardImage.startsWith("http")) {
+      try {
+        panCardImageUrl = await uploadImage(verificationData.panCardImage, "video-kyc/pan-cards");
+        await fs.unlink(verificationData.panCardImage).catch(() => {});
+      } catch (uErr) {
+        logger.error({ message: "Cloudinary upload failed for PAN", error: uErr.message });
+      }
+    }
+
+    let selfieImageUrl = verificationData.selfieImage;
+    if (verificationData.selfieImage && !verificationData.selfieImage.startsWith("http")) {
+      try {
+        selfieImageUrl = await uploadImage(verificationData.selfieImage, "video-kyc/selfies");
+        await fs.unlink(verificationData.selfieImage).catch(() => {});
+      } catch (uErr) {
+        logger.error({ message: "Cloudinary upload failed for Selfie", error: uErr.message });
+      }
+    }
+
     const updatedApplication = await kycRepository.updateVerification(applicationId, {
-      panCardImage: verificationData.panCardImage,
-      selfieImage: verificationData.selfieImage,
+      panCardImage: panCardImageUrl,
+      selfieImage: selfieImageUrl,
       faceMatch,
       faceMatchScore: faceMatchResult.score,
       panMatch,

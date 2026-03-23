@@ -17,9 +17,18 @@ const getMimeType = (filePath) => {
 };
 
 const toDataUrl = async (filePath) => {
-  const buffer = await fs.readFile(filePath);
-  const mimeType = getMimeType(filePath);
-  return `data:${mimeType};base64,${buffer.toString("base64")}`;
+  if (filePath && (filePath.startsWith("http://") || filePath.startsWith("https://"))) {
+    return filePath;
+  }
+  
+  try {
+    const buffer = await fs.readFile(filePath);
+    const mimeType = getMimeType(filePath);
+    return `data:${mimeType};base64,${buffer.toString("base64")}`;
+  } catch (error) {
+    console.error(`Error reading file at ${filePath}:`, error.message);
+    throw error;
+  }
 };
 
 const stripJsonFences = (value) =>
@@ -55,10 +64,13 @@ const requestVisionJson = async ({ prompt, imagePaths, maxOutputTokens = 200 }) 
   }
 
   const imageInputs = await Promise.all(
-    imagePaths.map(async (imagePath) => ({
-      type: "input_image",
-      image_url: await toDataUrl(imagePath),
-    }))
+    imagePaths.map(async (imagePath) => {
+      const urlOrData = await toDataUrl(imagePath);
+      return {
+        type: "input_image",
+        image_url: urlOrData,
+      };
+    })
   );
 
   const controller = new AbortController();

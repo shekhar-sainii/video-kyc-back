@@ -39,12 +39,17 @@ const getFaceApi = async () => {
   }
 
   if (!faceApiPromise) {
-    faceApiPromise = import("@vladmandic/face-api/dist/face-api.esm-nobundle.js")
-      .then((mod) => mod.default || mod)
-      .catch((error) => {
-        faceApiPromise = null;
-        throw error;
+    try {
+      const faceapi = require("@vladmandic/face-api/dist/face-api.node.js");
+      faceApiPromise = Promise.resolve(faceapi);
+    } catch (error) {
+      logger.error({
+        message: "Failed to load face-api node module",
+        error: error.message,
+        stack: error.stack,
       });
+      throw error;
+    }
   }
 
   const faceapi = await faceApiPromise;
