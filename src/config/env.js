@@ -1,0 +1,14 @@
+require("dotenv").config();
+
+module.exports = {
+  PORT: process.env.PORT,
+  MONGO_URI: process.env.MONGO_URI,
+  JWT_SECRET: process.env.JWT_SECRET,
+  FRONTEND_URL: process.env.FRONTEND_URL,
+  BACKEND_URL: process.env.BACKEND_URL,
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  OPENAI_VISION_MODEL: process.env.OPENAI_VISION_MODEL,
+};
