@@ -18,11 +18,15 @@ class AuthController {
             if (token) {
                 const verificationLink = `${FRONTEND_URL}/verify-email?token=${token}`;
 
-                await sendEmail({
-                    to: email,
-                    subject: "Verify Your Email",
-                    html: verifyTemplate(verificationLink),
-                });
+                try {
+                    await sendEmail({
+                        to: email,
+                        subject: "Verify Your Email",
+                        html: verifyTemplate(verificationLink),
+                    });
+                } catch (emailError) {
+                    console.error("Resend verification email failed:", emailError);
+                }
             }
 
             return ApiResponse.success(
@@ -40,11 +44,15 @@ class AuthController {
 
             const verificationLink = `${FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
-            await sendEmail({
-                to: user.email,
-                subject: "Verify Your Email",
-                html: verifyTemplate(verificationLink),
-            });
+            try {
+                await sendEmail({
+                    to: user.email,
+                    subject: "Verify Your Email",
+                    html: verifyTemplate(verificationLink),
+                });
+            } catch (emailError) {
+                console.error("Registration verification email failed:", emailError);
+            }
 
             return ApiResponse.success(
                 res,
@@ -165,11 +173,15 @@ async googleCallback(req, res, next) {
             if (token) {
                 const resetLink = `${FRONTEND_URL}/reset-password?token=${token}`;
 
-                await sendEmail({
-                    to: email,
-                    subject: "Reset Your Password",
-                    html: resetTemplate(resetLink),
-                });
+                try {
+                    await sendEmail({
+                        to: email,
+                        subject: "Reset Your Password",
+                        html: resetTemplate(resetLink),
+                    });
+                } catch (emailError) {
+                    console.error("Forgot password email failed:", emailError);
+                }
             }
 
             return ApiResponse.success(
