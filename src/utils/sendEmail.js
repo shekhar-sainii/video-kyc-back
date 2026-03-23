@@ -1,5 +1,9 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns");
 require("dotenv").config();
+
+// Force IPv4 resolution order
+dns.setDefaultResultOrder("ipv4first");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
