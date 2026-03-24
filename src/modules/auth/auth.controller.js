@@ -16,22 +16,18 @@ class AuthController {
             const token = await authService.resendVerification(email);
 
             if (token) {
-                const verificationLink = `${FRONTEND_URL}/verify-email?token=${token}`;
+                const verificationLink = `${FRONTEND_URL || "https://january-unredeeming-margarete.ngrok-free.dev"}/verify-email?token=${token}`;
 
-                try {
-                    await sendEmail({
-                        to: email,
-                        subject: "Verify Your Email",
-                        html: verifyTemplate(verificationLink),
-                    });
-                } catch (emailError) {
-                    console.error("Resend verification email failed:", emailError);
-                }
+                await sendEmail({
+                    to: email,
+                    subject: "Verify Your Email",
+                    html: verifyTemplate(verificationLink),
+                });
             }
 
             return ApiResponse.success(
                 res,
-                "If account exists, verification email sent. [v7]"
+                "If account exists, verification email sent."
             );
         } catch (error) {
             next(error);
@@ -42,21 +38,17 @@ class AuthController {
         try {
             const { user, verificationToken } = await authService.register(req.body);
 
-            const verificationLink = `${FRONTEND_URL}/verify-email?token=${verificationToken}`;
+            const verificationLink = `${FRONTEND_URL || "http://localhost:5173"}/verify-email?token=${verificationToken}`;
 
-            try {
-                await sendEmail({
-                    to: user.email,
-                    subject: "Verify Your Email",
-                    html: verifyTemplate(verificationLink),
-                });
-            } catch (emailError) {
-                console.error("Registration verification email failed:", emailError);
-            }
+            await sendEmail({
+                to: user.email,
+                subject: "Verify Your Email",
+                html: verifyTemplate(verificationLink),
+            });
 
             return ApiResponse.success(
                 res,
-                "Registered successfully. Please verify your email. [v7]",
+                "Registered successfully. Please verify your email.",
                 user,
                 StatusCodes.CREATED
             );
@@ -171,17 +163,13 @@ async googleCallback(req, res, next) {
             // }
 
             if (token) {
-                const resetLink = `${FRONTEND_URL}/reset-password?token=${token}`;
+                const resetLink = `http://localhost:5173/reset-password?token=${token}`;
 
-                try {
-                    await sendEmail({
-                        to: email,
-                        subject: "Reset Your Password",
-                        html: resetTemplate(resetLink),
-                    });
-                } catch (emailError) {
-                    console.error("Forgot password email failed:", emailError);
-                }
+                await sendEmail({
+                    to: email,
+                    subject: "Reset Your Password",
+                    html: resetTemplate(resetLink),
+                });
             }
 
             return ApiResponse.success(
