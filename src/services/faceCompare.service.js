@@ -5,6 +5,7 @@ const {
   isOpenAIVisionConfigured,
   compareFacesWithOpenAI,
 } = require("./openaiVision.service");
+const { StatusCodes } = require("http-status-codes")
 
 const { Canvas, Image, ImageData, createCanvas, loadImage } = canvas;
 
@@ -89,7 +90,7 @@ const createDescriptor = async (imagePath) => {
     });
 
     const wrappedError = new Error("Unable to read one of the face images.");
-    wrappedError.statusCode = 400;
+    wrappedError.statusCode = StatusCodes.BAD_REQUEST;
     throw wrappedError;
   }
 
@@ -104,7 +105,7 @@ const createDescriptor = async (imagePath) => {
 
   if (!detection) {
     const error = new Error("Face could not be detected clearly in one of the images.");
-    error.statusCode = 422;
+    error.statusCode = StatusCodes.UNPROCESSABLE_ENTITY;
     throw error;
   }
 
@@ -187,7 +188,7 @@ const getImageVector = async (imagePath) => {
     image = await loadImage(imagePath);
   } catch (error) {
     const wrappedError = new Error("Unable to process one of the face images.");
-    wrappedError.statusCode = 400;
+    wrappedError.statusCode = StatusCodes.BAD_REQUEST;
     throw wrappedError;
   }
 
