@@ -1,4 +1,5 @@
 const logger = require("../utils/logger");
+const {StatusCodes} = require("http-status-codes")
 
 const errorMiddleware = (err, req, res, next) => {
   logger.error({
@@ -8,7 +9,7 @@ const errorMiddleware = (err, req, res, next) => {
     method: req.method,
   });
 
-  const statusCode = err.statusCode || 500;
+  const statusCode = err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
 
   res.status(statusCode).json({
     success: false,

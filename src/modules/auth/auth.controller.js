@@ -153,17 +153,10 @@ async googleCallback(req, res, next) {
     async forgotPassword(req, res, next) {
         try {
             const { email } = req.body;
-
             const token = await authService.forgotPassword(email);
 
-            // if (token) {
-            //     console.log(
-            //         `Reset link: http://localhost:5000/reset-password?token=${token}`
-            //     );
-            // }
-
             if (token) {
-                const resetLink = `http://localhost:5173/reset-password?token=${token}`;
+                const resetLink = `${FRONTEND_URL || "http://localhost:5173"}/reset-password?token=${token}`;
 
                 await sendEmail({
                     to: email,

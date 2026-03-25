@@ -1,5 +1,6 @@
+const {StatusCodes} = require("http-status-codes")
 class ApiResponse {
-  static success(res, message, data = null, statusCode = 200) {
+  static success(res, message, data = null, statusCode = StatusCodes.OK) {
     return res.status(statusCode).json({
       success: true,
       message,
@@ -7,7 +8,7 @@ class ApiResponse {
     });
   }
 
-  static error(res, message, statusCode = 500) {
+  static error(res, message, statusCode = StatusCodes.INTERNAL_SERVER_ERROR) {
     return res.status(statusCode).json({
       success: false,
       message,

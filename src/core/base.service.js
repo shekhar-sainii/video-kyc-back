@@ -1,3 +1,4 @@
+const {StatusCodes} = require("http-status-codes")
 class BaseService {
   constructor(repository) {
     this.repository = repository;
@@ -12,7 +13,7 @@ class BaseService {
 
     if (!record) {
       const error = new Error("Resource not found");
-      error.statusCode = 404;
+      error.statusCode = StatusCodes.NOT_FOUND;
       throw error;
     }
 
@@ -24,7 +25,7 @@ class BaseService {
 
     if (!record) {
       const error = new Error("Resource not found");
-      error.statusCode = 404;
+      error.statusCode = StatusCodes.NOT_FOUND;
       throw error;
     }
 
@@ -40,7 +41,7 @@ class BaseService {
 
     if (!updated) {
       const error = new Error("Resource not found");
-      error.statusCode = 404;
+      error.statusCode = StatusCodes.NOT_FOUND;
       throw error;
     }
 
@@ -52,7 +53,7 @@ class BaseService {
 
     if (!deleted) {
       const error = new Error("Resource not found");
-      error.statusCode = 404;
+      error.statusCode = StatusCodes.NOT_FOUND;
       throw error;
     }
 

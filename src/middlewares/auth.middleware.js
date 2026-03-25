@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config/env");
 const ApiResponse = require("../core/apiResponse");
+const {StatusCodes} = require("http-status-codes")
 
 const User = require("../modules/user/user.model");
 
@@ -9,7 +10,7 @@ const authMiddleware = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return ApiResponse.error(res, "No token provided", 401);
+      return ApiResponse.error(res, "No token provided", StatusCodes.UNAUTHORIZED);
     }
 
     const token = authHeader.split(" ")[1];
@@ -19,7 +20,7 @@ const authMiddleware = async (req, res, next) => {
     const user = await User.findById(decoded.id);
 
     if (!user || !user.isActive) {
-      return ApiResponse.error(res, "Unauthorized", 401);
+      return ApiResponse.error(res, "Unauthorized", StatusCodes.UNAUTHORIZED);
     }
 
     req.user = {
@@ -29,7 +30,7 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    return ApiResponse.error(res, "Invalid or expired token", 401);
+    return ApiResponse.error(res, "Invalid or expired token", StatusCodes.UNAUTHORIZED);
   }
 };
 
